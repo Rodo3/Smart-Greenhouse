@@ -1,0 +1,146 @@
+Script SQL
+--- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3307
+-- Generation Time: May 03, 2023 at 04:13 AM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.2.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO"; -- Establece el modo SQL para evitar que se asignen valores autoincrementales
+START TRANSACTION; -- Inicia una transacción para asegurar la atomicidad de las operaciones
+
+SET time_zone = "+00:00"; -- Establece la zona horaria a UTC
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `conectividadxampp`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `distancia`
+--
+
+CREATE TABLE `distancia` (
+  `fecha` varchar(11) NOT NULL, -- Crea una tabla llamada `distancia` con una columna `fecha` de tipo VARCHAR y longitud máxima de 11 caracteres
+  `distancia` int(11) NOT NULL -- Crea una columna `distancia` de tipo INT con longitud máxima de 11 caracteres
+) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci; -- Establece la configuración del motor de almacenamiento y la codificación de caracteres para la tabla
+
+--
+-- Dumping data for table `distancia`
+--
+
+INSERT INTO `distancia` (`fecha`, `distancia`) VALUES -- Inserta datos en la tabla `distancia`
+('1682963412', 171),
+('1682963412', 171),
+('1682963444', 3),
+('1682963444', 3),
+('1682963453', 5),
+('1682963453', 5),
+('1682963461', 10),
+('1682963462', 10),
+('1682963489', 33),
+('1682963489', 33),
+('1682963498', 170),
+('1682963498', 170),
+
+(COMMIT);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lightsensor`
+--
+
+CREATE TABLE `lightsensor` (
+  `fecha` int(11) NOT NULL, -- Crea una tabla llamada `lightsensor` con una columna `fecha` de tipo INT y longitud máxima de 11 caracteres
+  `luminosidad` int(11) NOT NULL -- Crea una columna `luminosidad` de tipo INT con longitud máxima de 11 caracteres
+) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci; -- Establece la configuración del motor de almacenamiento y la codificación de caracteres para la tabla
+
+--
+-- Dumping data for table `lightsensor`
+--
+
+INSERT INTO `lightsensor` (`fecha`, `luminosidad`) VALUES -- Inserta datos en la tabla `lightsensor`
+(1682963412, 0),
+(1682963412, 0),
+(1682963444, 925),
+(1682963444, 925),
+(1682963453, 918),
+(1682963453, 918),
+(1682963461, 917),
+(COMMIT);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `temperatura_humedad`
+--
+
+CREATE TABLE `temperatura_humedad` (
+  `fecha` int(11) NOT NULL,
+  `temperatura` float NOT NULL,
+  `humedad` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `temperatura_humedad`
+--
+
+INSERT INTO `temperatura_humedad` (`fecha`, `temperatura`, `humedad`) VALUES
+(1682963412, 25.9, 25),
+(1682963412, 25.9, 25),
+
+
+(COMMIT);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+
+<?php
+
+// Recupera los valores de los parámetros pasados a través de la URL
+$temperatura = $_GET['temp'];
+$humedad = $_GET['hum'];
+$distancia = $_GET['d'];
+$luminosidad = $_GET['luz'];
+
+// Imprime los valores de los parámetros en la página web
+echo "La temperatura es: ".$temperatura." <br>La humedad es: ".$humedad." <br>La distancia es: ".$distancia." <br>La Luminosidad es: ".$luminosidad;
+
+// Conexión a la base de datos
+$usuario = "root";
+$contrasena = "";
+$servidor = "localhost:3307";
+$basededatos = "conectividadxampp";
+$conexion = mysqli_connect( $servidor, $usuario, "" ) or die ("No se ha podido conectar al servidor de Base de datos");
+
+// Selección de la base de datos
+$db = mysqli_select_db( $conexion, $basededatos ) or die ( "No se ha podido seleccionar la base de datos" );
+
+// Obtiene la fecha y hora actual del sistema
+$fecha = time();
+
+// Inserta los valores en la tabla temperatura_humedad
+$consulta = "INSERT INTO temperatura_humedad (fecha, temperatura, humedad) VALUES ('".$fecha."', '".$temperatura."', '".$humedad."')";
+$resultado = mysqli_query( $conexion, $consulta);
+
+// Inserta los valores en la tabla lightsensor
+$consulta2 = "INSERT INTO lightsensor(fecha,luminosidad) VALUES('".$fecha."','".$luminosidad."')";
+$resultado2 = mysqli_query( $conexion, $consulta2);
+
+// Inserta los valores en la tabla distancia
+$consulta3 = "INSERT INTO distancia(fecha,distancia) VALUES('".$fecha."', '".$distancia."')";
+$resultado3 = mysqli_query( $conexion, $consulta3);
+
+?>
