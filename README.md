@@ -16,6 +16,8 @@ A photoresistor-based LED system regulates lighting conditions. If light levels 
 
 To maintain optimal environmental conditions, the system includes an automated cooling mechanism. If the temperature rises above 24-26°C, a relay-controlled fan activates to cool the plants. The software integration involves multiple platforms such as Arduino IDE, XAMPP, phpMyAdmin, and other tools to facilitate data processing and storage, ensuring a smooth interaction between hardware and cloud services.<br><br>
 
+![User Interface](https://drive.google.com/uc?export=view&id=1xWdxsCL6HidYvibfSy-cT69LTeO6n6cw)
+
 ## Key Components
 - **NodeMCU**: Manages data transmission and device communication.<br>
 - **DHT11 Sensor**: Measures temperature and humidity.<br>
@@ -26,12 +28,20 @@ To maintain optimal environmental conditions, the system includes an automated c
 - **LED Indicators**: Provide visual feedback on environmental conditions.<br>
 - **Cloud Database**: Stores and processes sensor data for analysis.<br><br>
 
+![Hardware Diagram](https://drive.google.com/uc?export=view&id=15hRUyFkmBbMxj3e76kX6emhKSRFKgH3-)
+
 ## Results & Benefits
 - **Optimized Plant Care**: Maintains proper watering and light conditions.<br>
 - **Automated Monitoring**: Reduces manual effort in garden maintenance.<br>
 - **Enhanced Security**: Protects plants from pests and unauthorized access.<br>
 - **Data-Driven Insights**: Helps users track environmental patterns for better decision-making.<br>
 - **Remote Accessibility**: Allows monitoring and control from any location.<br><br>
+
+![Final Results](https://drive.google.com/uc?export=view&id=1Nb7_Lbv4R5gQMllHlBkyEKTwa1vWWGmS)
+![](https://drive.google.com/uc?export=view&id=1EF8xK3r07Xmnf6Wxdrgeu_GcHuNjUhrn)
+![](https://drive.google.com/uc?export=view&id=15FnjuKvtkc9y3wRujLcNSg1o45PAGOiw)
+
+
 
 This project demonstrates the potential of IoT in sustainable gardening, providing an efficient and smart approach to plant care and security.
 
