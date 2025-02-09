@@ -1,0 +1,180 @@
+Arduino
+
+// Definicion de las librerias, y los nombres que utilizaremos
+#include <DHT.h>
+#include <ESP8266WiFi.h>
+#include <DHT_U.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define ht11 D1 
+#define DHTTYPE DHT11
+#define Trig D3
+#define Echo D6
+#define pinRed D2
+#define pinGreen D5
+#define pinBlue D4
+#define buzzer D0
+
+DHT dht(ht11, DHTTYPE);
+int lightPin = 0;
+int lightVal;
+int dt = 900;
+int gPin = D8;
+int cooler = D7;
+
+// Declaración de variables faltantes
+unsigned long previousMillis = 0;
+unsigned long watchdog = 5000;
+const char* ssid = "Tec-IoT";
+const char* password = "spotless.magnetic.bridge";
+const char* host = "10.22.237.197";
+int port = 80;
+
+void setup(){
+//aqui es donde se establece la conexion al internet
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+//notifica que esta conectado al internet
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+//definiendo los pin modes de cada una de las cosas que tenemos
+  Serial.begin(9600);  
+  dht.begin();
+  pinMode(ht11, INPUT);
+  pinMode(cooler, OUTPUT);
+  pinMode(lightPin, INPUT); 
+  pinMode(gPin, OUTPUT);
+  pinMode( Trig, OUTPUT); 
+  pinMode( Echo, INPUT);
+  digitalWrite(Trig, LOW); 
+  pinMode(pinRed, OUTPUT);
+  pinMode(pinGreen, OUTPUT);  
+  pinMode(pinBlue, OUTPUT);
+  pinMode(buzzer,OUTPUT);
+}
+
+void loop(){
+  digitalWrite(buzzer,LOW);
+  
+//chequeo para encender el led en caso de que el valor de lightVals sea menor que dt
+
+  lightVal = analogRead(lightPin);
+  Serial.print(lightVal);
+  Serial.println(" luz");
+  delay(1000);
+  if (lightVal >= dt) {
+    digitalWrite(gPin, HIGH);
+  }
+  else {
+    digitalWrite(gPin, LOW);
+  }
+//aqui es donde se leen los datos de temperatura y humedad
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();         
+  Serial.print("Humedad = ");
+  Serial.print(h);
+  Serial.print("%  ");
+  Serial.print("Temperatura = ");
+  Serial.print(t); 
+  Serial.println("°C  ");
+  delay(1000);
+
+//en caso de que la temperatura sea mayor a 26 grados, se encendera el abanico
+  if (t >= 26){
+    analogWrite(cooler, HIGH);
+    delay(500);
+  }
+  if (t < 26) {
+    analogWrite(cooler, LOW);
+  }
+//sensor ultrasonico
+  long duration;
+  int d;
+  digitalWrite(Trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(Trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trig, LOW);
+  duration = pulseIn(Echo, HIGH);
+  d = duration / 2 * 0.0344;
+  Serial.print(d);
+  Serial.println(" distancia ");
+
+  delay(1000);
+
+
+//parte de la conectividad a la base de atos
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis > watchdog) {
+    previousMillis = currentMillis;
+    WiFiClient client;
+
+    if (!client.connect(host, port)) {
+      Serial.println("Fallo al conectar");
+      return;
+    }
+
+//concatenamos el url para la subida de datos.
+    String url = "/ProyectoXAMPP/logtemp.php?temp=";
+    url += t;
+    url += "&hum=";
+    url += h;
+    url += "&d=";
+    url += d;
+    url += "&luz=";
+    url += lightVal;
+//mandamos el request 
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
+    unsigned long timeout = millis();
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        Serial.println(">>> Client Timeout !");
+        client.stop();
+        return;
+      }
+    }
+
+    // Leemos la respuesta del servidor
+    while(client.available()){
+      String line = client.readStringUntil('\r');
+      Serial.print(line);
+    }
+  }
+
+
+//se aciva el buzzer en caso de que la distancia medida del ultrasonico sea menor que 20. y se prende el led RGB
+  if (d < 20){
+    setCol(255,0,0); // Set color to red when the distance is less than 20
+    digitalWrite(buzzer, HIGH);
+    delay(1000);
+    digitalWrite(buzzer, LOW);
+    delay(1000);
+    digitalWrite(buzzer, HIGH);
+    delay(1000);
+    digitalWrite(buzzer, LOW);
+    delay(1000);
+    digitalWrite(buzzer, HIGH);
+    delay(1000);
+    digitalWrite(buzzer, LOW);
+    delay(1000);
+  }
+  else{
+    setCol(255,0,0); // Set color to green when the distance is equal to or greater than 20
+  }
+}
+//funcion para prender el rgb
+void setCol(int red, int green, int blue){
+  analogWrite(pinRed, red);
+  analogWrite(pinGreen, green);
+  analogWrite(pinBlue, blue);
+}
